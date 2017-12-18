@@ -1,5 +1,6 @@
 import requests
 import re
+import nltk
 from bs4 import BeautifulSoup
 
 cList = {
@@ -27,12 +28,12 @@ cList = {
   "how'd'y": "how do you",
   "how'll": "how will",
   "how's": "how is",
-  "I'd": "I would",
-  "I'd've": "I would have",
-  "I'll": "I will",
-  "I'll've": "I will have",
-  "I'm": "I am",
-  "I've": "I have",
+  "i'd": "i would",
+  "i'd've": "i would have",
+  "i'll": "i will",
+  "i'll've": "i will have",
+  "i'm": "i am",
+  "i've": "i have",
   "isn't": "is not",
   "it'd": "it had",
   "it'd've": "it would have",
@@ -126,9 +127,13 @@ cList = {
 c_re = re.compile('(%s)' % '|'.join(cList.keys()))
 
 def expandContractions(text, c_re=c_re):
-    def replace(match):
-        return cList[match.group(0)]
-    return c_re.sub(replace, text)
+	def replace(match):
+		return cList[match.group(0)]
+	return c_re.sub(replace, text)
+
+# for loop each word and remove symbols except if it is a value
+def process(text):
+	return expandContractions(text)
 
 json = open("messages.json", "w")
 txt = open("messages.txt", "w")
@@ -141,8 +146,8 @@ for index in range(0, 839, 50):
 	soup = BeautifulSoup(response.text, "html.parser")
 
 	for s in soup.findAll('td', colspan="3"):
-		json.write("\t\t\"" + expandContractions(s.a.next.replace("\"", "").replace("“", "").replace("- ", " - ").replace(" -", " - ").lower()) + "\",\n")
-		txt.write(expandContractions(s.a.next.replace("\"", "").replace("“", "").replace("- ", " - ").replace(" -", " - ").lower()) + "\n")
+		json.write("\t\t\"" + process(s.a.next.replace("\"", "").replace("“", "").replace("- ", " - ").replace(" -", " - ").lower()) + "\",\n")
+		txt.write(process(s.a.next.replace("\"", "").replace("“", "").replace("- ", " - ").replace(" -", " - ").lower()) + "\n")
 
 json.write("\t]\n")
 json.write("}\n")

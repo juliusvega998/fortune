@@ -2,11 +2,19 @@ const MarkovChain 	= require('markovchain');
 const fs			= require('fs');
 const msgs			= new MarkovChain(fs.readFileSync('messages.txt', 'utf-8'));
 
-const randomWord = (wordList) => {
-	let tmpList = Object.keys(wordList).filter(function(word) {
-		return true;
-	})
-	return tmpList[~~(Math.random()*tmpList.length)];
+let firstWords = [];
+
+const main = () => {
+	let text = fs.readFileSync('messages.txt', 'utf-8').split('\n');
+	text.forEach((n) => {
+		let word = n.split(" ")[0];
+
+		if(!firstWords.includes(word)) {
+			firstWords.push(word);
+		}
+	});
+
+	console.log(msgs.start(firstWords[~~(Math.random()*firstWords.length)]).end(15).process());
 }
 
-console.log(msgs.start(randomWord).end(10).process());
+main();
