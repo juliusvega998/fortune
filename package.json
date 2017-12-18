@@ -1,0 +1,22 @@
+{
+  "name": "fortune",
+  "version": "1.0.0",
+  "description": "Fortune cookie messages provided by [fortunecookiemessage.com](http://www.fortunecookiemessage.com)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juliusvega998/fortune.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/juliusvega998/fortune/issues"
+  },
+  "homepage": "https://github.com/juliusvega998/fortune#readme",
+  "dependencies": {
+    "markovchain": "^1.0.2"
+  }
+}
