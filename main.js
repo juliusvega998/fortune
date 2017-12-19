@@ -70,6 +70,8 @@ const isValidSentence = (pos) => {
 const main = () => {
 	let text = fs.readFileSync('messages.txt', 'utf-8').split('\n');
 	let pos = [];
+	let msg;
+
 	text.forEach((n) => {
 		let word = n.split(" ")[0];
 
@@ -79,12 +81,9 @@ const main = () => {
 	});
 
 	do {
-		let msg = msgs.start(firstWords[~~(Math.random()*firstWords.length)]).end(10).process();
+		msg = msgs.start(firstWords[~~(Math.random()*firstWords.length)]).end(7).process();
 		if(!msg) continue;
 		pos = nc.text(msg).tags()[0];
-
-		console.log(msg);
-		console.log(JSON.stringify(pos));
 
 		msg.split(" ").forEach((e, i) => {
 			if(pos[i] == "Gerund") {
@@ -105,9 +104,9 @@ const main = () => {
 				pos[i] = "Adverb";
 			}
 		});
-		
-		console.log(JSON.stringify(pos));
 	} while(!isValidSentence(pos));
+	
+	console.log(msg);
 }
 
 main();

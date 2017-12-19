@@ -133,7 +133,7 @@ def expandContractions(text, c_re=c_re):
 
 def process(text):
 	temp = expandContractions(text)
-	return " ".join(re.split(r'[^A-Za-z\']+', temp)).strip()
+	return " ".join(re.split(r'[^A-Za-z0-9\']+', temp)).strip()
 
 
 json = open("messages.json", "w")
