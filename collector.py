@@ -133,7 +133,7 @@ def expandContractions(text, c_re=c_re):
 
 def process(text):
 	temp = expandContractions(text)
-	return " ".join(re.split(r'[^A-Za-z]+', temp)).strip()
+	return " ".join(re.split(r'[^A-Za-z\']+', temp)).strip()
 
 
 json = open("messages.json", "w")
@@ -148,7 +148,7 @@ for index in range(0, 839, 50):
 
 	for s in soup.findAll('td', colspan="3"):
 		json.write("\t\t\"" + process(s.a.next.replace("\"", "").replace("“", "").lower()) + "\",\n")
-		txt.write(process(s.a.next.replace("\"", "").replace("“", "").replace("’", "'").lower()) + "\n")
+		txt.write(process(s.a.next.replace("\"", "").replace("“", "").replace("’", "'").lower().replace("god", "God")) + "\n")
 
 json.write("\t]\n")
 json.write("}\n")

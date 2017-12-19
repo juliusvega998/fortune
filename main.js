@@ -6,6 +6,7 @@ const msgs			= new MarkovChain(fs.readFileSync('messages.txt', 'utf-8'));
 
 let firstWords = [];
 let articles = ["the", "a", "an"];
+let accepted = ["Noun", "Verb", "Adverb", "Adjective", "Preposition"]
 
 const isValidSentence = (pos) => {
 	let article = 0;
@@ -78,11 +79,23 @@ const main = () => {
 	});
 
 	do {
-		let msg = msgs.start(firstWords[~~(Math.random()*firstWords.length)]).end(7).process();
+		let msg = msgs.start(firstWords[~~(Math.random()*firstWords.length)]).end(10).process();
+		if(!msg) continue;
 		pos = nc.text(msg).tags()[0];
 
+		console.log(msg);
+		console.log(JSON.stringify(pos));
+
 		msg.split(" ").forEach((e, i) => {
-			if(nlp(msg).nouns().out('list').includes(e)) {
+			if(pos[i] == "Gerund") {
+				pos[i] = "Noun";
+			} else if(pos[i] == "Copula") {
+				pos[i] = "Verb";
+			} else if(accepted.includes(pos[i])) {
+				return;
+			} else if(articles.includes(e)) {
+				pos[i] = "Article";
+			} else if(nlp(msg).nouns().out('list').includes(e)) {
 				pos[i] = "Noun";
 			} else if(nlp(msg).verbs().out('list').includes(e)) {
 				pos[i] = "Verb";
@@ -90,13 +103,9 @@ const main = () => {
 				pos[i] = "Adjective";
 			} else if(nlp(msg).adverbs().out('list').includes(e)) {
 				pos[i] = "Adverb";
-			} else if(articles.includes(e)) {
-				pos[i] = "Article";
 			}
 		});
-
-
-		console.log(msg);
+		
 		console.log(JSON.stringify(pos));
 	} while(!isValidSentence(pos));
 }
