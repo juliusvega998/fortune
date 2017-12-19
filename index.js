@@ -117,7 +117,7 @@ app.get('/fortune', function(req, res) {
 		}
 	} while(!isValidSentence(pos));
 
-	res.end(msg);
+	res.end("{ \"message\": " + msg + " }");
 });
 
 axios.get('https://juliusvega998.github.io/juliusvega998.github.io/misc/messages.json')
