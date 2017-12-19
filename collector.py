@@ -131,9 +131,9 @@ def expandContractions(text, c_re=c_re):
 		return cList[match.group(0)]
 	return c_re.sub(replace, text)
 
-# for loop each word and remove symbols except if it is a value
 def process(text):
-	return " ".join(re.split(r'[^A-Za-z]+', expandContractions(text))).strip()
+	temp = expandContractions(text)
+	return " ".join(re.split(r'[^A-Za-z]+', temp)).strip()
 
 
 json = open("messages.json", "w")
@@ -147,8 +147,8 @@ for index in range(0, 839, 50):
 	soup = BeautifulSoup(response.text, "html.parser")
 
 	for s in soup.findAll('td', colspan="3"):
-		json.write("\t\t\"" + process(s.a.next.replace("\"", "").replace("“", "").replace("- ", " - ").replace(" -", " - ").lower()) + "\",\n")
-		txt.write(process(s.a.next.replace("\"", "").replace("“", "").replace("- ", " - ").replace(" -", " - ").lower()) + "\n")
+		json.write("\t\t\"" + process(s.a.next.replace("\"", "").replace("“", "").lower()) + "\",\n")
+		txt.write(process(s.a.next.replace("\"", "").replace("“", "").replace("’", "'").lower()) + "\n")
 
 json.write("\t]\n")
 json.write("}\n")
