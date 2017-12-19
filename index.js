@@ -4,14 +4,15 @@ const nc			= require('nlp_compromise');
 const fs			= require('fs');
 const express		= require('express');
 const bodyParser	= require('body-parser');
+const axios			= require('axios');
 const app			= express();
 
-const msgs			= new MarkovChain(fs.readFileSync('messages.txt', 'utf-8'));
 const text			= fs.readFileSync('messages.txt', 'utf-8').split('\n');
 
-let firstWords = [];
-let articles = ["the", "a", "an"];
-let accepted = ["Noun", "Verb", "Adverb", "Adjective", "Preposition", "Copula"];
+let firstWords 		= [];
+let articles 		= ["the", "a", "an"];
+let accepted 		= ["Noun", "Verb", "Adverb", "Adjective", "Preposition", "Copula"];
+let msgs;
 
 const isValidSentence = (pos) => {
 	let article = 0;
@@ -129,6 +130,13 @@ app.get('/fortune', function(req, res) {
 	res.end(msg);
 });
 
-app.listen(3000, () => {
-	console.log('Server now listening on port 3000');
-});
+axios.get('https://juliusvega998.github.io/juliusvega998.github.io/misc/messages.json')
+	.then(function(data) {
+		msgs = new MarkovChain(data.data.data.join("\n"));
+		app.listen(3000, () => {
+			console.log('Server now listening on port 3000');
+		});
+	})
+	.catch(function (err) {
+		console.log(err);
+	});
