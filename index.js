@@ -7,12 +7,10 @@ const bodyParser	= require('body-parser');
 const axios			= require('axios');
 const app			= express();
 
-const text			= fs.readFileSync('messages.txt', 'utf-8').split('\n');
-
+const articles 		= ["the", "a", "an"];
+const accepted 		= ["Noun", "Verb", "Adverb", "Adjective", "Preposition", "Copula"];
 let firstWords 		= [];
-let articles 		= ["the", "a", "an"];
-let accepted 		= ["Noun", "Verb", "Adverb", "Adjective", "Preposition", "Copula"];
-let msgs;
+let msgs, text;
 
 const isValidSentence = (pos) => {
 	let article = 0;
@@ -81,14 +79,6 @@ const isValidSentence = (pos) => {
 	return article == 0 && preposition == 0 && conjunction == 0 && adjective == 0 && adverb == 0 && copula == 0;
 }
 
-text.forEach((n) => {
-	let word = n.split(" ")[0];
-
-	if(!firstWords.includes(word)) {
-		firstWords.push(word);
-	}
-});
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
 	extended: true
@@ -133,6 +123,16 @@ app.get('/fortune', function(req, res) {
 axios.get('https://juliusvega998.github.io/juliusvega998.github.io/misc/messages.json')
 	.then(function(data) {
 		msgs = new MarkovChain(data.data.data.join("\n"));
+		text = data.data.data;
+		
+		text.forEach((n) => {
+			let word = n.split(" ")[0];
+
+			if(!firstWords.includes(word)) {
+				firstWords.push(word);
+			}
+		});
+
 		app.listen(3000, () => {
 			console.log('Server now listening on port 3000');
 		});

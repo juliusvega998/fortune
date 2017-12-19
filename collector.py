@@ -137,7 +137,6 @@ def process(text):
 
 
 json = open("messages.json", "w")
-txt = open("messages.txt", "w")
 
 json.write("{\n")
 json.write("\t\"data\": [\n")
@@ -147,11 +146,9 @@ for index in range(0, 839, 50):
 	soup = BeautifulSoup(response.text, "html.parser")
 
 	for s in soup.findAll('td', colspan="3"):
-		json.write("\t\t\"" + process(s.a.next.replace("\"", "").replace("“", "").lower()) + "\",\n")
-		txt.write(process(s.a.next.replace("\"", "").replace("“", "").replace("’", "'").lower().replace("god", "God")) + "\n")
+		json.write("\t\t\"" + process(s.a.next.replace("\"", "").replace("“", "").lower().replace("god", "God")) + "\",\n")
 
 json.write("\t]\n")
 json.write("}\n")
 json.close()
-txt.close()
 print("done!")
