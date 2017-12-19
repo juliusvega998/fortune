@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/juliusvega998/fortune#readme",
   "dependencies": {
+    "compromise": "^11.2.1",
     "markovchain": "^1.0.2",
-    "natural": "^0.5.4"
+    "nlp_compromise": "^6.5.5"
   }
 }

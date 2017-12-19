@@ -133,7 +133,7 @@ def expandContractions(text, c_re=c_re):
 
 # for loop each word and remove symbols except if it is a value
 def process(text):
-	return " ".join(re.split(r'\W+', expandContractions(text))).strip()
+	return " ".join(re.split(r'[^A-Za-z]+', expandContractions(text))).strip()
 
 
 json = open("messages.json", "w")
