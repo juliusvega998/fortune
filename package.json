@@ -4,7 +4,8 @@
   "description": "Fortune cookie messages provided by [fortunecookiemessage.com](http://www.fortunecookiemessage.com)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,9 @@
   },
   "homepage": "https://github.com/juliusvega998/fortune#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "compromise": "^11.2.1",
+    "express": "^4.16.2",
     "markovchain": "^1.0.2",
     "nlp_compromise": "^6.5.5"
   }

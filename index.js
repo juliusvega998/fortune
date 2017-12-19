@@ -2,11 +2,16 @@ const MarkovChain 	= require('markovchain');
 const nlp			= require('compromise');
 const nc			= require('nlp_compromise');
 const fs			= require('fs');
+const express		= require('express');
+const bodyParser	= require('body-parser');
+const app			= express();
+
 const msgs			= new MarkovChain(fs.readFileSync('messages.txt', 'utf-8'));
+const text			= fs.readFileSync('messages.txt', 'utf-8').split('\n');
 
 let firstWords = [];
 let articles = ["the", "a", "an"];
-let accepted = ["Noun", "Verb", "Adverb", "Adjective", "Preposition"]
+let accepted = ["Noun", "Verb", "Adverb", "Adjective", "Preposition", "Copula"];
 
 const isValidSentence = (pos) => {
 	let article = 0;
@@ -14,6 +19,7 @@ const isValidSentence = (pos) => {
 	let adjective = 0;
 	let adverb = 0;
 	let conjunction = 0;
+	let copula = 0;
 
 	for(let i = 0; i < pos.length; i++) {
 		let e = pos[i];
@@ -35,6 +41,12 @@ const isValidSentence = (pos) => {
 		case "Conjunction":
 			if(conjunction == 0) {
 				conjunction = -1;
+			} else {
+				return false;
+			}
+		case "Copula":
+			if(copula == 0) {
+				copula = -1;
 			} else {
 				return false;
 			}
@@ -60,38 +72,46 @@ const isValidSentence = (pos) => {
 		case "Adverb":
 			adverb = -1;
 			break;
+		case "Condition":
+			return false;
 		}
-		//console.log(article + " " + preposition + " " + adjective + " " + adverb)
 	}
 
-	return article == 0 && preposition == 0 && conjunction == 0 && adjective == 0 && adverb == 0;
+	return article == 0 && preposition == 0 && conjunction == 0 && adjective == 0 && adverb == 0 && copula == 0;
 }
 
-const main = () => {
-	let text = fs.readFileSync('messages.txt', 'utf-8').split('\n');
+text.forEach((n) => {
+	let word = n.split(" ")[0];
+
+	if(!firstWords.includes(word)) {
+		firstWords.push(word);
+	}
+});
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+	extended: true
+}));
+
+app.get('/fortune', function(req, res) {
 	let pos = [];
 	let msg;
-
-	text.forEach((n) => {
-		let word = n.split(" ")[0];
-
-		if(!firstWords.includes(word)) {
-			firstWords.push(word);
-		}
-	});
 
 	do {
 		msg = msgs.start(firstWords[~~(Math.random()*firstWords.length)]).end(7).process();
 		if(!msg) continue;
 		pos = nc.text(msg).tags()[0];
 
-		msg.split(" ").forEach((e, i) => {
-			if(pos[i] == "Gerund") {
+		tok = msg.split(" ");
+		for(let i = 0; i < pos.length; i++) {
+			e = tok[i];
+			if(pos[i] == "FutureTense") {
+				pos.splice(i, 1, "Verb");
+				pos.splice(i, 0, "Verb");
+			} else if(pos[i] == "Gerund") {
 				pos[i] = "Noun";
-			} else if(pos[i] == "Copula") {
-				pos[i] = "Verb";
 			} else if(accepted.includes(pos[i])) {
-				return;
+				continue;
 			} else if(articles.includes(e)) {
 				pos[i] = "Article";
 			} else if(nlp(msg).nouns().out('list').includes(e)) {
@@ -103,10 +123,12 @@ const main = () => {
 			} else if(nlp(msg).adverbs().out('list').includes(e)) {
 				pos[i] = "Adverb";
 			}
-		});
+		}
 	} while(!isValidSentence(pos));
-	
-	console.log(msg);
-}
 
-main();
+	res.end(msg);
+});
+
+app.listen(3000, () => {
+	console.log('Server now listening on port 3000');
+});
