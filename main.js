@@ -12,6 +12,7 @@ const isValidSentence = (pos) => {
 	let preposition = 0;
 	let adjective = 0;
 	let adverb = 0;
+	let conjunction = 0;
 
 	for(let i = 0; i < pos.length; i++) {
 		let e = pos[i];
@@ -30,12 +31,21 @@ const isValidSentence = (pos) => {
 				return false;
 			}
 			break;
-		case "Noun":
-			if(preposition < 0) {
-				preposition = 0;
+		case "Conjunction":
+			if(conjunction == 0) {
+				conjunction = -1;
+			} else {
+				return false;
 			}
+		case "Noun":
 			if(article < 0) {
 				article = 0;
+			}
+
+			if(preposition < 0) {
+				preposition = 0;
+			} else if(conjunction < 0) {
+				conjunction = 0;
 			}
 			break;
 		case "Verb":
@@ -53,7 +63,7 @@ const isValidSentence = (pos) => {
 		//console.log(article + " " + preposition + " " + adjective + " " + adverb)
 	}
 
-	return article == 0 && preposition == 0 && adjective == 0 && adverb == 0;
+	return article == 0 && preposition == 0 && conjunction == 0 && adjective == 0 && adverb == 0;
 }
 
 const main = () => {
