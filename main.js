@@ -14,7 +14,7 @@ const main = () => {
 		}
 	});
 
-	console.log(msgs.start(firstWords[~~(Math.random()*firstWords.length)]).end(15).process());
+	console.log(msgs.start(firstWords[~~(Math.random()*firstWords.length)]).end(7).process());
 }
 
 main();
