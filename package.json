@@ -18,11 +18,9 @@
   },
   "homepage": "https://github.com/juliusvega998/fortune#readme",
   "dependencies": {
-    "axios": "^0.17.1",
+    "axios": "^0.19.0",
     "body-parser": "^1.18.2",
-    "compromise": "^11.2.1",
     "express": "^4.16.2",
-    "markovchain": "^1.0.2",
-    "nlp_compromise": "^6.5.5"
+    "markov-chain-nlg": "^1.0.3"
   }
 }

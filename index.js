@@ -1,160 +1,57 @@
-const MarkovChain 	= require('markovchain');
-const nlp			= require('compromise');
-const nc			= require('nlp_compromise');
-const fs			= require('fs');
-const express		= require('express');
-const bodyParser	= require('body-parser');
-const axios			= require('axios');
-const app			= express();
+const MarkovChain   = require('markov-chain-nlg');
+const fs            = require('fs');
+const express       = require('express');
+const bodyParser    = require('body-parser');
+const axios         = require('axios');
+const app           = express();
 
-const articles 		= ["the", "a", "an"];
-const accepted 		= ["Noun", "Verb", "Adverb", "Adjective", "Preposition", "Copula"];
-let firstWords 		= [];
 let msgs, text;
-
-const isValidSentence = (pos) => {
-	let article = 0;
-	let preposition = 0;
-	let adjective = 0;
-	let adverb = 0;
-	let conjunction = 0;
-	let copula = 0;
-
-	for(let i = 0; i < pos.length; i++) {
-		let e = pos[i];
-		switch(e) {
-		case "Article":
-			if(article == 0) {
-				article = -1;
-			} else {
-				return false;
-			}
-			break;
-		case "Preposition":
-			if(preposition == 0) {
-				preposition = -1;
-			} else {
-				return false;
-			}
-			break;
-		case "Conjunction":
-			if(conjunction == 0) {
-				conjunction = -1;
-			} else {
-				return false;
-			}
-		case "Copula":
-			if(copula == 0) {
-				copula = -1;
-			} else {
-				return false;
-			}
-		case "Noun":
-			if(article < 0) {
-				article = 0;
-			}
-
-			if(preposition < 0) {
-				preposition = 0;
-			} else if(conjunction < 0) {
-				conjunction = 0;
-			}
-			break;
-		case "Verb":
-			if(adverb < 0) {
-				adverb = 0;
-			}
-			break;
-		case "Adjective":
-			adjective = -1;
-			break;
-		case "Adverb":
-			adverb = -1;
-			break;
-		case "Condition":
-			return false;
-		}
-	}
-
-	return article == 0 && preposition == 0 && conjunction == 0 && adjective == 0 && adverb == 0 && copula == 0;
-}
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-	extended: true
+    extended: true
 }));
 
 app.use((req, res, next) => {
-	// Website you wish to allow to connect
+    // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', 'https://juliusvega998.github.io');
+    res.setHeader('Access-Control-Allow-Origin', 'http://juliusve.ga');
     
     // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
 
     // Request headers you wish to allow
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    // res.setHeader('Access-Control-Allow-Credentials', true);
 
     // Pass to next layer of middleware
     next();
 })
 
 app.get('/fortune', function(req, res) {
-	let pos = [];
-	let msg;
+    let pos = [];
+    let msg;
 
-	do {
-		msg = msgs.start(firstWords[~~(Math.random()*firstWords.length)]).end(7).process();
-		if(!msg) continue;
-		pos = nc.text(msg).tags()[0];
+    do {
+        msg = MarkovChain.generate(20)
+        if(msg.split(' ').length < 20) break;
+    } while(true);
 
-		tok = msg.split(" ");
-		for(let i = 0; i < pos.length; i++) {
-			e = tok[i];
-			if(pos[i] == "FutureTense") {
-				pos.splice(i, 1, "Verb");
-				pos.splice(i, 0, "Verb");
-			} else if(pos[i] == "Gerund") {
-				pos[i] = "Noun";
-			} else if(accepted.includes(pos[i])) {
-				continue;
-			} else if(articles.includes(e)) {
-				pos[i] = "Article";
-			} else if(nlp(msg).nouns().out('list').includes(e)) {
-				pos[i] = "Noun";
-			} else if(nlp(msg).verbs().out('list').includes(e)) {
-				pos[i] = "Verb";
-			} else if(nlp(msg).adjectives().out('list').includes(e)) {
-				pos[i] = "Adjective";
-			} else if(nlp(msg).adverbs().out('list').includes(e)) {
-				pos[i] = "Adverb";
-			}
-		}
-	} while(!isValidSentence(pos));
-
-	res.end("{ \"message\": \"" + msg + "\" }");
+    res.end("{ \"message\": \"" + msg + "\" }");
 });
 
 axios.get('https://juliusvega998.github.io/juliusvega998.github.io/misc/messages.json')
-	.then(function(data) {
-		msgs = new MarkovChain(data.data.data.join("\n"));
-		text = data.data.data;
-		
-		text.forEach((n) => {
-			let word = n.split(" ")[0];
+    .then(function(data) {
+        MarkovChain.train(data.data.data, true);
 
-			if(!firstWords.includes(word)) {
-				firstWords.push(word);
-			}
-		});
-
-		app.listen(3000, () => {
-			console.log('Server now listening on port 3000');
-		});
-	})
-	.catch(function (err) {
-		console.log(err);
-	});
+        app.listen(3000, () => {
+            console.log('Server now listening on port 3000');
+        });
+    })
+    .catch(function (err) {
+        console.log(err);
+    });
