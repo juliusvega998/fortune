@@ -1,57 +1,41 @@
+const AWS           = require('aws-sdk')
 const MarkovChain   = require('markov-chain-nlg');
 const fs            = require('fs');
-const express       = require('express');
-const bodyParser    = require('body-parser');
-const axios         = require('axios');
-const app           = express();
 
-let msgs, text;
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+function init(callback) {
+    let messages_file = 'messages.json'
+    fs.readFile(messages_file, (err,data) => {
+        let msg
 
-app.use((req, res, next) => {
-    // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'https://juliusvega998.github.io');
-    res.setHeader('Access-Control-Allow-Origin', 'http://juliusve.ga');
-    
-    // Request methods you wish to allow
-    // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
-
-    // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    // res.setHeader('Access-Control-Allow-Credentials', true);
-
-    // Pass to next layer of middleware
-    next();
-})
-
-app.get('/fortune', function(req, res) {
-    let pos = [];
-    let msg;
-
-    do {
-        msg = MarkovChain.generate(20)
-        if(msg.split(' ').length < 20) break;
-    } while(true);
-
-    res.end("{ \"message\": \"" + msg + "\" }");
-});
-
-axios.get('https://juliusvega998.github.io/juliusvega998.github.io/misc/messages.json')
-    .then(function(data) {
-        MarkovChain.train(data.data.data, true);
-
-        app.listen(3000, () => {
-            console.log('Server now listening on port 3000');
-        });
+        if(err) {
+            console.log("File not found " + messages_file + "!!!")
+            callback(err)
+            return
+        }
+        
+        MarkovChain.train(JSON.parse(data).data, true);
+        console.log("Markov chain finished training.")
+        callback(null)
     })
-    .catch(function (err) {
-        console.log(err);
-    });
+}
+
+function generate_message(event, context, callback) {
+    let msg
+
+    context.callbackWaitsForEmptyEventLoop = false
+
+    init((err) => {
+        if (err) {
+            console.log(err)
+            callback(Error(err), JSON.parse("{ \"message\": null, \"success\": false }"))
+        }
+        
+        msg = MarkovChain.generate(20)
+
+        console.log("Message generated.")
+        callback(null, JSON.parse("{ \"message\": \"" + msg.trim() + "\", \"success\": true }"));
+    })
+}
+
+exports.handler = generate_message
