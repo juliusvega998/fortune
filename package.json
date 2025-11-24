@@ -1,6 +1,7 @@
 {
   "name": "fortune",
-  "version": "1.0.0",
+  "type": "module",
+  "version": "2.0.0",
   "description": "Fortune cookie messages provided by [fortunecookiemessage.com](http://www.fortunecookiemessage.com)",
   "main": "index.js",
   "scripts": {

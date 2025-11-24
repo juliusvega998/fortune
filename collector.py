@@ -127,13 +127,13 @@ cList = {
 c_re = re.compile('(%s)' % '|'.join(cList.keys()))
 
 def expandContractions(text, c_re=c_re):
-	def replace(match):
-		return cList[match.group(0)]
-	return c_re.sub(replace, text)
+  def replace(match):
+    return cList[match.group(0)]
+  return c_re.sub(replace, text)
 
 def process(text):
-	temp = expandContractions(text)
-	return " ".join(re.split(r'[^A-Za-z0-9\']+', temp)).strip()
+  temp = expandContractions(text)
+  return " ".join(re.split(r'[^A-Za-z0-9\']+', temp)).strip()
 
 
 json = open("messages.json", "w")
@@ -142,11 +142,11 @@ json.write("{\n")
 json.write("\t\"data\": [\n")
 
 for index in range(0, 839, 50):
-	response = requests.get('http://www.fortunecookiemessage.com/archive.php?start=' + str(index))
-	soup = BeautifulSoup(response.text, "html.parser")
+  response = requests.get('http://www.fortunecookiemessage.com/archive.php?start=' + str(index))
+  soup = BeautifulSoup(response.text, "html.parser")
 
-	for s in soup.findAll('td', colspan="3"):
-		json.write("\t\t\"" + process(s.a.next.replace("\"", "").replace("“", "").lower().replace("god", "God")) + "\",\n")
+  for s in soup.findAll('td', colspan="3"):
+    json.write("\t\t\"" + process(s.a.next.replace("\"", "").replace("“", "").lower().replace("god", "God")) + "\",\n")
 
 json.write("\t]\n")
 json.write("}\n")

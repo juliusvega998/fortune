@@ -1,41 +1,34 @@
-const AWS           = require('aws-sdk')
-const MarkovChain   = require('markov-chain-nlg');
-const fs            = require('fs');
+import MarkovChain from 'markov-chain-nlg';
+import fs from 'fs'
 
-
-function init(callback) {
-    let messages_file = 'messages.json'
-    fs.readFile(messages_file, (err,data) => {
-        let msg
-
-        if(err) {
-            console.log("File not found " + messages_file + "!!!")
-            callback(err)
-            return
+export const handler = (event, context) => {
+    context.callbackWaitsForEmptyEventLoop = false
+    try {
+        let response = generate_message()
+        return {
+            statusCode: 200,
+            body: response
         }
-        
-        MarkovChain.train(JSON.parse(data).data, true);
-        console.log("Markov chain finished training.")
-        callback(null)
-    })
+    }
+    catch (e) {
+        console.error(e)
+        return 500
+    }
 }
 
-function generate_message(event, context, callback) {
+function init() {
+    let messages_file = 'messages.json'
+    let data = fs.readFileSync(messages_file)
+    MarkovChain.train(JSON.parse(data).data, true)
+    console.log("Markov chain finished training.")
+}
+
+function generate_message() {
     let msg
 
-    context.callbackWaitsForEmptyEventLoop = false
+    init()
 
-    init((err) => {
-        if (err) {
-            console.log(err)
-            callback(Error(err), JSON.parse("{ \"message\": null, \"success\": false }"))
-        }
-        
-        msg = MarkovChain.generate(20)
-
-        console.log("Message generated.")
-        callback(null, JSON.parse("{ \"message\": \"" + msg.trim() + "\", \"success\": true }"));
-    })
+    msg = MarkovChain.generate(20)
+    console.log("Message generated: { \"message\": \"" + msg.trim() + "\", \"success\": true }")
+    return "{ \"message\": \"" + msg.trim() + "\", \"success\": true }"
 }
-
-exports.handler = generate_message
